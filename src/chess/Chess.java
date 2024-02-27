@@ -64,8 +64,8 @@ public class Chess {
 			}
 			return curr;
 		}
-		String promotionPiece = "";
-		if ((moveParts.length == 3 || moveParts.length == 4) && !moveParts[2].equals("draw?")) promotionPiece = moveParts[2];
+		String ZERO = "";
+		if ((moveParts.length == 3 || moveParts.length == 4) && !moveParts[2].equals("draw?")) ZERO = moveParts[2];
 		boolean checkPromotion = false;
 		
 		String destination = moveParts[1];
@@ -76,7 +76,7 @@ public class Chess {
 		}
 
 		boolean foundPiece = false;
-		Pawn isPassant = null;
+		Pawn checkPassant = null;
 
 		for (ReturnPiece piece : curr.piecesOnBoard){
 			if (piece.pieceFile.name().equalsIgnoreCase(source.substring(0, 1)) &&
@@ -90,7 +90,7 @@ public class Chess {
 				if(piece.pieceType == ReturnPiece.PieceType.WP || piece.pieceType == ReturnPiece.PieceType.BP){
 					//Create a Pawn object
 					Pawn pawn = new Pawn(source, piece.pieceType.name().substring(0, 1), enpassant);
-					isPassant = pawn;
+					checkPassant = pawn;
 					pawn.setActualPiece(piece);
 
 					if(currPlayer == Chess.Player.white) enpassant[0] = false;
@@ -103,10 +103,10 @@ public class Chess {
 					
 					if (pawn.isEligibleForPromotion(destination)){
 						checkPromotion = true;
-						if (promotionPiece.equals("N")) piece.pieceType = (pieceColor.get(currPlayer).equals("W")) ? ReturnPiece.PieceType.WN : ReturnPiece.PieceType.BN;
-						else if (promotionPiece.equals("R")) piece.pieceType = (pieceColor.get(currPlayer).equals("W")) ? ReturnPiece.PieceType.WR : ReturnPiece.PieceType.BR;
-						else if (promotionPiece.equals("B")) piece.pieceType = (pieceColor.get(currPlayer).equals("W")) ? ReturnPiece.PieceType.WB : ReturnPiece.PieceType.BB;
-						else if (promotionPiece.equals("") || promotionPiece.equals("Q")) piece.pieceType = (pieceColor.get(currPlayer).equals("W")) ? ReturnPiece.PieceType.WQ : ReturnPiece.PieceType.BQ;
+						if (ZERO.equals("N")) piece.pieceType = (pieceColor.get(currPlayer).equals("W")) ? ReturnPiece.PieceType.WN : ReturnPiece.PieceType.BN;
+						else if (ZERO.equals("R")) piece.pieceType = (pieceColor.get(currPlayer).equals("W")) ? ReturnPiece.PieceType.WR : ReturnPiece.PieceType.BR;
+						else if (ZERO.equals("B")) piece.pieceType = (pieceColor.get(currPlayer).equals("W")) ? ReturnPiece.PieceType.WB : ReturnPiece.PieceType.BB;
+						else if (ZERO.equals("") || ZERO.equals("Q")) piece.pieceType = (pieceColor.get(currPlayer).equals("W")) ? ReturnPiece.PieceType.WQ : ReturnPiece.PieceType.BQ;
 					}
 				} else if(piece.pieceType == ReturnPiece.PieceType.WR || piece.pieceType == ReturnPiece.PieceType.BR){
 
@@ -151,10 +151,10 @@ public class Chess {
 				piece.pieceRank = Integer.parseInt(destination.charAt(1) + "");
 
 				ReturnPiece passantSaved = null; 
-				if(Pawn.getActualPasssant() != null && isPassant != null && isPassant.isValidEnpassant()){
-					for(ReturnPiece piecee: startPieceMap){ 
-						if(piecee == Pawn.getActualPasssant()){
-							passantSaved = piecee;
+				if(Pawn.getActualPasssant() != null && checkPassant != null && checkPassant.isValidEnpassant()){
+					for(ReturnPiece pieceTwo: startPieceMap){ 
+						if(pieceTwo == Pawn.getActualPasssant()){
+							passantSaved = pieceTwo;
 							break;
 						}
 					}
@@ -175,7 +175,7 @@ public class Chess {
 					return curr;
 				}
 
-				if(Pawn.getActualPasssant() != null && isPassant != null && isPassant.isValidEnpassant()){
+				if(Pawn.getActualPasssant() != null && checkPassant != null && checkPassant.isValidEnpassant()){
 					startPieceMap.remove(Pawn.getActualPasssant());
 					Pawn.setActualPasssant(null);
 				}
@@ -207,21 +207,7 @@ public class Chess {
 		
 	}
 	
-	public static void addQueens() {
-		ReturnPiece whiteQueen = new ReturnPiece();
-		whiteQueen.pieceType = ReturnPiece.PieceType.WQ;
-		whiteQueen.pieceFile = ReturnPiece.PieceFile.values()[3];
-		whiteQueen.pieceRank = 1;
-		startPieceMap.add(whiteQueen);
-		piecesMoves.put(whiteQueen, 0);
-
-		ReturnPiece blackQueen = new ReturnPiece();
-		blackQueen.pieceType = ReturnPiece.PieceType.BQ;
-		blackQueen.pieceFile = ReturnPiece.PieceFile.values()[3];
-		blackQueen.pieceRank = 8;
-		startPieceMap.add(blackQueen);
-		piecesMoves.put(blackQueen, 0);
-	}
+	
 
 
 	public static void addKings() {
@@ -240,6 +226,39 @@ public class Chess {
 		piecesMoves.put(blackKing, 0);
 	}
 
+	public static void addPawns(){
+		for (int i = 0; i < 8; i++){
+			ReturnPiece whitePawn = new ReturnPiece();
+			whitePawn.pieceType = ReturnPiece.PieceType.WP;
+			whitePawn.pieceFile = ReturnPiece.PieceFile.values()[i]; 
+			whitePawn.pieceRank = 2;
+			startPieceMap.add(whitePawn);
+			piecesMoves.put(whitePawn, 0);
+
+			ReturnPiece blackPawn = new ReturnPiece();
+			blackPawn.pieceType = ReturnPiece.PieceType.BP;
+			blackPawn.pieceFile = ReturnPiece.PieceFile.values()[i];
+			blackPawn.pieceRank = 7;
+			startPieceMap.add(blackPawn);
+			piecesMoves.put(blackPawn, 0);
+		}
+	}
+
+	public static void addQueens() {
+		ReturnPiece whiteQueen = new ReturnPiece();
+		whiteQueen.pieceType = ReturnPiece.PieceType.WQ;
+		whiteQueen.pieceFile = ReturnPiece.PieceFile.values()[3];
+		whiteQueen.pieceRank = 1;
+		startPieceMap.add(whiteQueen);
+		piecesMoves.put(whiteQueen, 0);
+
+		ReturnPiece blackQueen = new ReturnPiece();
+		blackQueen.pieceType = ReturnPiece.PieceType.BQ;
+		blackQueen.pieceFile = ReturnPiece.PieceFile.values()[3];
+		blackQueen.pieceRank = 8;
+		startPieceMap.add(blackQueen);
+		piecesMoves.put(blackQueen, 0);
+	}
 
 	public static void addBishops() {
 		for (int i = 0; i < 2; i++){
@@ -274,24 +293,6 @@ public class Chess {
 			blackKnight.pieceRank = 8;
 			startPieceMap.add(blackKnight);
 			piecesMoves.put(blackKnight, 0);
-		}
-	}
-
-	public static void addPawns(){
-		for (int i = 0; i < 8; i++){
-			ReturnPiece whitePawn = new ReturnPiece();
-			whitePawn.pieceType = ReturnPiece.PieceType.WP;
-			whitePawn.pieceFile = ReturnPiece.PieceFile.values()[i]; 
-			whitePawn.pieceRank = 2;
-			startPieceMap.add(whitePawn);
-			piecesMoves.put(whitePawn, 0);
-
-			ReturnPiece blackPawn = new ReturnPiece();
-			blackPawn.pieceType = ReturnPiece.PieceType.BP;
-			blackPawn.pieceFile = ReturnPiece.PieceFile.values()[i];
-			blackPawn.pieceRank = 7;
-			startPieceMap.add(blackPawn);
-			piecesMoves.put(blackPawn, 0);
 		}
 	}
 
